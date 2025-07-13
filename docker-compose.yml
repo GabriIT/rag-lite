@@ -1,0 +1,40 @@
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    volumes: [ "ollama:/root/.ollama" ]
+    environment:
+      - OLLAMA_MODELS=tinyllama:1.1b-chat-v1-q4_0,nomic-embed-text
+    restart: unless-stopped
+
+  db:
+    image: pgvector/pgvector:pg16 
+    environment:
+      POSTGRES_USER: rag
+      POSTGRES_PASSWORD: ragpw
+      POSTGRES_DB: rag
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/sql/init.sql:/docker-entrypoint-initdb.d/00-init.sql:ro
+    ports:                          # optional - open psql from host
+      - "5432:5432"
+  api:
+    build: ./backend
+    environment:
+      - DATABASE_URL=postgresql+psycopg2://rag:ragpw@db:5432/rag
+      - OLLAMA_URL=http://ollama:11434
+    depends_on: [ db , ollama ]
+    ports: ["8000:8000"]
+    restart: unless-stopped
+
+  web:
+    profiles: ["prod"]               # ← only started with --profile prod
+    build: ./frontend
+    depends_on: [ api ]
+    ports: ["3000:80"]
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  ollama:
+

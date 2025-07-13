@@ -1,0 +1,13 @@
+server {
+    listen 80;
+    server_name example.com;
+    root /var/www/rag-lite;
+
+    location / {
+        try_files $uri /index.html;
+    }
+
+    # Proxy the API
+    location /upload   { proxy_pass http://127.0.0.1:8000; }
+    location /ask      { proxy_pass http://127.0.0.1:8000; }
+}
