@@ -8,4 +8,8 @@ RUN python -m pip install --upgrade pip \
  && pip install -r requirements.txt        # no apt involved
 
 COPY . .
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# No EXPOSE needed – both sides now agree on whatever Dokku sets- > Port 5000
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "${PORT:-8000}"]
+
+# CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
