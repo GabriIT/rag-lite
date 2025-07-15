@@ -28,7 +28,7 @@ FROM nginx:1.27-alpine
 # recommended: make Nginx a bit more secure & quiet
 RUN rm /etc/nginx/conf.d/default.conf
 
-COPY ./frontend/nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 
 COPY --from=builder /app/dist /usr/share/nginx/html
