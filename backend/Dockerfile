@@ -1,9 +1,9 @@
 FROM python:3.12-slim
 
-# --- at the top (after FROM) ------------
 ENV PORT 5000
-EXPOSE 5000
-# ----------------------------------------
+EXPOSE 5000               # <-- crucial for Dokku 0.35.x
+
+
 
 WORKDIR /app
 
@@ -16,7 +16,9 @@ RUN python -m pip install --upgrade pip \
 COPY . .
 
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]
+# use a shell CMD so $PORT expands at run‑time
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-5000}"]
+
 
 
 
