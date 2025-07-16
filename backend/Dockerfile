@@ -1,8 +1,7 @@
 FROM python:3.12-slim
 
 ENV PORT 5000
-EXPOSE 5000               # <-- crucial for Dokku 0.35.x
-
+EXPOSE 5000              
 
 
 WORKDIR /app
