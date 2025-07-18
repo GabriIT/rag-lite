@@ -1,10 +1,21 @@
 from fastapi import FastAPI, UploadFile, File, Form, Depends
+from fastapi.middleware.cors import CORSMiddleware
+
 import io
 from sqlalchemy.orm import Session
 from db import get_session, Document
 from rag import pdf_to_chunks, embed_texts, query_pgvector, answer_with_rag
 
 app = FastAPI()
+
+origins = ["https://rag-web.athenalabo.com", "http://rag-web.athenalabo.com"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_methods=["POST"],
+    allow_headers=["*"],
+)
+
 
 @app.post("/upload")
 async def upload(file: UploadFile = File(...), db: Session = Depends(get_session)):
