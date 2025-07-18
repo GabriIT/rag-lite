@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { uploadPdf, askQuestion } from "./api";
+import { uploadPdf, askQuestion } from "./api";   // ← uses new api.ts
 
 export default function App() {
   const [pdf, setPdf] = useState<File>();
@@ -7,28 +7,42 @@ export default function App() {
   const [chat, setChat] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
 
+  /* ------------- upload ---------------- */
   const upload = async () => {
     if (!pdf) return;
     setBusy(true);
-    await uploadPdf(pdf);
-    setBusy(false);
-    alert("PDF indexed 🎉");
+    try {
+      await uploadPdf(pdf);
+      alert("PDF indexed 🎉");
+    } catch (e) {
+      console.error(e);
+      alert("Upload failed 😢 – see console");
+    } finally {
+      setBusy(false);
+    }
   };
 
+  /* ------------- ask ------------------- */
   const ask = async () => {
     if (!question.trim()) return;
     setBusy(true);
-    const { data } = await askQuestion(question);
-    setChat((c) => [...c, `🧑: ${question}`, `🤖: ${data.response}`]);
-    setQuestion("");
-    setBusy(false);
+    try {
+      const { data } = await askQuestion(question);
+      setChat((c) => [...c, `🧑: ${question}`, `🤖: ${data.response}`]);
+      setQuestion("");
+    } catch (e) {
+      console.error(e);
+      alert("Request failed 😢 – see console");
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
     <main className="p-6 max-w-xl mx-auto space-y-4">
-      <h1 className="text-2xl font-bold">Lite-RAG Demo</h1>
+      <h1 className="text-2xl font-bold">Lite‑RAG Demo</h1>
 
-      {/* Upload box */}
+      {/* ------- upload box -------- */}
       <section className="border p-4 rounded space-y-2 bg-white">
         <input
           type="file"
@@ -40,11 +54,11 @@ export default function App() {
           disabled={busy || !pdf}
           className="bg-blue-600 disabled:bg-blue-300 text-white px-3 py-1 rounded"
         >
-          {busy ? "Uploading…" : "Upload & Index"}
+          {busy ? "Uploading…" : "Upload & Index"}
         </button>
       </section>
 
-      {/* Ask box */}
+      {/* ------- ask box ----------- */}
       <section className="border p-4 rounded space-y-2 bg-white">
         <input
           value={question}
@@ -61,10 +75,13 @@ export default function App() {
         </button>
       </section>
 
-      {/* Chat log */}
+      {/* ------- chat log ---------- */}
       <section className="border p-4 rounded max-h-96 overflow-auto bg-white space-y-1">
         {chat.map((line, i) => (
-          <p key={i} className={line.startsWith("🤖") ? "font-semibold" : ""}>
+          <p
+            key={i}
+            className={line.startsWith("🤖") ? "font-semibold" : undefined}
+          >
             {line}
           </p>
         ))}
